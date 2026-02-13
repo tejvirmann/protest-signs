@@ -188,14 +188,17 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center mb-12">
               <div>
-                <h2 className="text-4xl font-bold mb-2">🔥 Popular Signs</h2>
-                <p className="text-xl text-gray-600">
-                  Our best-selling designs making the biggest impact
+                <div className="inline-block bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full mb-3">
+                  BEST SELLERS
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold mb-3">Popular Signs</h2>
+                <p className="text-lg text-gray-600 max-w-2xl">
+                  Top designs making the biggest impact at protests and rallies nationwide
                 </p>
               </div>
               <Link
                 href="/browse?featured=popular"
-                className="flex items-center gap-2 text-black hover:gap-3 transition-all font-semibold group"
+                className="hidden md:flex items-center gap-2 text-black hover:gap-3 transition-all font-semibold group"
               >
                 View All
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -208,14 +211,14 @@ export default async function HomePage() {
                   href={`/sign/${sign.id}`}
                   className="group cursor-pointer"
                 >
-                  <Card className="overflow-hidden border-none shadow-md hover:shadow-2xl transition-all duration-300">
-                    <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                  <Card className="overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300 h-full">
+                    <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
                       {sign.images.length > 0 ? (
                         <Image
                           src={sign.images[0]}
                           alt={sign.title}
                           fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -223,16 +226,16 @@ export default async function HomePage() {
                         </div>
                       )}
                       {sign.quantity_available <= 5 && (
-                        <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                          Only {sign.quantity_available} left
+                        <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">
+                          {sign.quantity_available} left
                         </div>
                       )}
                     </div>
-                    <CardContent className="p-4">
-                      <h4 className="font-bold text-lg mb-2 group-hover:text-gray-700 transition-colors line-clamp-2">
+                    <CardContent className="p-5">
+                      <h4 className="font-bold text-base mb-3 group-hover:text-gray-700 transition-colors line-clamp-2 min-h-[3rem]">
                         {sign.title}
                       </h4>
-                      <p className="text-2xl font-bold">{formatPrice(sign.price)}</p>
+                      <p className="text-2xl font-bold text-black">{formatPrice(sign.price)}</p>
                     </CardContent>
                   </Card>
                 </Link>
@@ -248,14 +251,17 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center mb-12">
               <div>
-                <h2 className="text-4xl font-bold mb-2">🌟 Seasonal Collection</h2>
-                <p className="text-xl text-gray-600">
-                  Timely messages for current movements and events
+                <div className="inline-block bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full mb-3">
+                  TRENDING NOW
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold mb-3">Featured Collection</h2>
+                <p className="text-lg text-gray-600 max-w-2xl">
+                  Timely designs for current movements, events, and causes that matter today
                 </p>
               </div>
               <Link
                 href="/browse?featured=seasonal"
-                className="flex items-center gap-2 text-black hover:gap-3 transition-all font-semibold group"
+                className="hidden md:flex items-center gap-2 text-black hover:gap-3 transition-all font-semibold group"
               >
                 View All
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -268,14 +274,14 @@ export default async function HomePage() {
                   href={`/sign/${sign.id}`}
                   className="group cursor-pointer"
                 >
-                  <Card className="overflow-hidden border-none shadow-md hover:shadow-2xl transition-all duration-300">
-                    <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                  <Card className="overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300 h-full">
+                    <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
                       {sign.images.length > 0 ? (
                         <Image
                           src={sign.images[0]}
                           alt={sign.title}
                           fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -283,16 +289,16 @@ export default async function HomePage() {
                         </div>
                       )}
                       {sign.quantity_available <= 5 && (
-                        <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                          Only {sign.quantity_available} left
+                        <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">
+                          {sign.quantity_available} left
                         </div>
                       )}
                     </div>
-                    <CardContent className="p-4">
-                      <h4 className="font-bold text-lg mb-2 group-hover:text-gray-700 transition-colors line-clamp-2">
+                    <CardContent className="p-5">
+                      <h4 className="font-bold text-base mb-3 group-hover:text-gray-700 transition-colors line-clamp-2 min-h-[3rem]">
                         {sign.title}
                       </h4>
-                      <p className="text-2xl font-bold">{formatPrice(sign.price)}</p>
+                      <p className="text-2xl font-bold text-black">{formatPrice(sign.price)}</p>
                     </CardContent>
                   </Card>
                 </Link>
@@ -352,14 +358,14 @@ export default async function HomePage() {
                         href={`/sign/${sign.id}`}
                         className="group cursor-pointer"
                       >
-                        <Card className="overflow-hidden border-none shadow-md hover:shadow-2xl transition-all duration-300">
-                          <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                        <Card className="overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300 h-full">
+                          <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
                             {sign.images.length > 0 ? (
                               <Image
                                 src={sign.images[0]}
                                 alt={sign.title}
                                 fill
-                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -367,16 +373,16 @@ export default async function HomePage() {
                               </div>
                             )}
                             {sign.quantity_available <= 5 && (
-                              <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                                Only {sign.quantity_available} left
+                              <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">
+                                {sign.quantity_available} left
                               </div>
                             )}
                           </div>
-                          <CardContent className="p-4">
-                            <h4 className="font-bold text-lg mb-2 group-hover:text-gray-700 transition-colors line-clamp-2">
+                          <CardContent className="p-5">
+                            <h4 className="font-bold text-base mb-3 group-hover:text-gray-700 transition-colors line-clamp-2 min-h-[3rem]">
                               {sign.title}
                             </h4>
-                            <p className="text-2xl font-bold">{formatPrice(sign.price)}</p>
+                            <p className="text-2xl font-bold text-black">{formatPrice(sign.price)}</p>
                           </CardContent>
                         </Card>
                       </Link>

@@ -100,16 +100,16 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="relative w-10 h-10">
+            <Link href="/" className="flex items-center">
+              <div className="relative w-16 h-16">
                 <Image
                   src="/logo.png"
-                  alt="Protest Signs Logo"
+                  alt="Protest Signs"
                   fill
                   className="object-contain"
+                  priority
                 />
               </div>
-              <span className="font-bold text-lg">PROTEST SIGNS</span>
             </Link>
 
             <div className="hidden md:flex space-x-6">
