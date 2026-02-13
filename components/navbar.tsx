@@ -88,6 +88,7 @@ export function Navbar() {
     return () => {
       supabase.removeChannel(channel)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
 
   const handleSignOut = async () => {

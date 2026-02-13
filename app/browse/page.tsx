@@ -60,6 +60,7 @@ function BrowsePageContent() {
       if (data) setTags(data)
     }
     fetchTags()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -115,6 +116,7 @@ function BrowsePageContent() {
     if (tags.length > 0 || selectedTags.length === 0) {
       fetchSigns()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTags, featuredFilter, sortBy, tags])
 
   const toggleTag = (slug: string) => {

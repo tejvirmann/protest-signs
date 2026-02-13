@@ -108,10 +108,6 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-gray-900 to-black opacity-90"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6 border border-white/20">
-              <Megaphone className="w-4 h-4" />
-              <span className="text-sm font-medium">Professional Protest Signs</span>
-            </div>
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               MAKE YOUR
               <span className="block bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
@@ -325,7 +321,7 @@ export default async function HomePage() {
               <Megaphone className="w-16 h-16 mx-auto mb-4 text-gray-400" />
               <h3 className="text-2xl font-bold mb-2">Coming Soon!</h3>
               <p className="text-gray-600 mb-8">
-                We're adding signs to our collection. Check back soon!
+                We&apos;re adding signs to our collection. Check back soon!
               </p>
               <Link href="/contact">
                 <Button size="lg">Contact Us</Button>
