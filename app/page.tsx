@@ -29,55 +29,79 @@ interface TagGroup {
 }
 
 export default async function HomePage() {
-  const supabase = await createClient()
+  let tagGroups: TagGroup[] = []
 
-  // Get tags that should be shown on homepage
-  const { data: homepageTags } = await supabase
-    .from('tags')
-    .select('*')
-    .eq('show_on_homepage', true)
-    .order('homepage_order', { ascending: true })
+  try {
+    console.log('[HomePage] Starting - checking env vars')
+    console.log('[HomePage] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING')
+    console.log('[HomePage] NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'MISSING')
 
-  // Get signs for each tag
-  const tagGroups: TagGroup[] = []
+    const supabase = await createClient()
+    console.log('[HomePage] Supabase client created')
 
-  if (homepageTags) {
-    for (const tag of homepageTags) {
-      const { data: signTags } = await supabase
-        .from('sign_tags')
-        .select(`
-          display_order,
-          tag_id,
-          signs (
-            id,
-            title,
-            price,
-            images,
-            quantity_available,
-            archived_at
-          )
-        `)
-        .eq('tag_id', tag.id)
-        .order('display_order', { ascending: true })
-        .limit(6)
+    // Get tags that should be shown on homepage
+    const { data: homepageTags, error: tagsError } = await supabase
+      .from('tags')
+      .select('*')
+      .eq('show_on_homepage', true)
+      .order('homepage_order', { ascending: true })
 
-      const signs = signTags
-        ?.map((st: any) => ({
-          ...st.signs,
-          sign_tags: [{ display_order: st.display_order, tag_id: st.tag_id }],
-        }))
-        .filter((sign: any) => sign.archived_at === null && sign.quantity_available > 0) || []
+    if (tagsError) {
+      console.error('[HomePage] Error fetching tags:', tagsError)
+      throw tagsError
+    }
 
-      if (signs.length > 0) {
-        tagGroups.push({
-          id: tag.id,
-          name: tag.name,
-          slug: tag.slug,
-          homepage_order: tag.homepage_order || 0,
-          signs,
-        })
+    console.log('[HomePage] Fetched tags:', homepageTags?.length || 0)
+
+    if (homepageTags) {
+      for (const tag of homepageTags) {
+        const { data: signTags, error: signTagsError } = await supabase
+          .from('sign_tags')
+          .select(`
+            display_order,
+            tag_id,
+            signs (
+              id,
+              title,
+              price,
+              images,
+              quantity_available,
+              archived_at
+            )
+          `)
+          .eq('tag_id', tag.id)
+          .order('display_order', { ascending: true })
+          .limit(6)
+
+        if (signTagsError) {
+          console.error('[HomePage] Error fetching sign_tags for tag', tag.id, ':', signTagsError)
+          continue
+        }
+
+        const signs = signTags
+          ?.map((st: any) => ({
+            ...st.signs,
+            sign_tags: [{ display_order: st.display_order, tag_id: st.tag_id }],
+          }))
+          .filter((sign: any) => sign.archived_at === null && sign.quantity_available > 0) || []
+
+        if (signs.length > 0) {
+          tagGroups.push({
+            id: tag.id,
+            name: tag.name,
+            slug: tag.slug,
+            homepage_order: tag.homepage_order || 0,
+            signs,
+          })
+        }
       }
     }
+
+    console.log('[HomePage] Tag groups built:', tagGroups.length)
+  } catch (error) {
+    console.error('[HomePage] Fatal error:', error)
+    console.error('[HomePage] Error details:', JSON.stringify(error, null, 2))
+    // Don't throw - just show empty state
   }
 
   return (
