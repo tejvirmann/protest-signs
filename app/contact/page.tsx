@@ -1,154 +1,102 @@
-'use client'
+import { Mail, MessageCircle, Github } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Mail, CheckCircle } from 'lucide-react'
+export const metadata = {
+  title: 'Contact - Minimal Next.js Site',
+  description: 'Get in touch with us.',
+}
 
 export default function ContactPage() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          message,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message')
-      }
-
-      setSuccess(true)
-      setLoading(false)
-      setName('')
-      setEmail('')
-      setMessage('')
-    } catch (err: any) {
-      setError(err.message)
-      setLoading(false)
-    }
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-            <CardTitle className="text-3xl font-bold">Message Sent!</CardTitle>
-            <CardDescription>
-              Thank you for contacting us. We&apos;ll get back to you as soon as possible.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => setSuccess(false)} className="w-full">
-              Send Another Message
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <main className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-12">
-          <Mail className="w-16 h-16 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold mb-4">Contact Support</h1>
+          <Mail className="w-16 h-16 mx-auto mb-4 text-gray-700" />
+          <h1 className="text-5xl font-bold mb-4">Get In Touch</h1>
           <p className="text-xl text-gray-600">
-            Have a question or need help? We&apos;re here for you.
+            We&apos;d love to hear from you. Here&apos;s how you can reach us.
           </p>
         </div>
 
-        <Card className="max-w-2xl mx-auto">
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
-                  {error}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start space-x-4">
+                <Mail className="w-8 h-8 text-gray-600 flex-shrink-0" />
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Email Us</h3>
+                  <p className="text-gray-600 mb-3">
+                    For general inquiries and support
+                  </p>
+                  <a
+                    href="mailto:hello@example.com"
+                    className="text-blue-600 hover:underline"
+                  >
+                    hello@example.com
+                  </a>
                 </div>
-              )}
-
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
-                  Your Name
-                </label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  placeholder="John Doe"
-                />
               </div>
+            </CardContent>
+          </Card>
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Email Address
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="you@example.com"
-                />
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start space-x-4">
+                <MessageCircle className="w-8 h-8 text-gray-600 flex-shrink-0" />
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Social Media</h3>
+                  <p className="text-gray-600 mb-3">
+                    Connect with us online
+                  </p>
+                  <div className="space-y-2">
+                    <a
+                      href="https://twitter.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline block"
+                    >
+                      Twitter
+                    </a>
+                    <a
+                      href="https://linkedin.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline block"
+                    >
+                      LinkedIn
+                    </a>
+                  </div>
+                </div>
               </div>
+            </CardContent>
+          </Card>
+        </div>
 
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-2">
-                  Message
-                </label>
-                <Textarea
-                  id="message"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  required
-                  placeholder="How can we help you?"
-                  rows={6}
-                />
-              </div>
+        <div className="mt-16 text-center">
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="pt-6">
+              <Github className="w-12 h-12 mx-auto mb-4 text-gray-700" />
+              <h3 className="text-2xl font-semibold mb-3">Open Source</h3>
+              <p className="text-gray-600 mb-4">
+                This project is built with Next.js 14 and deployed on Vercel.
+                Check out our repository to learn more about the tech stack.
+              </p>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                View on GitHub
+              </a>
+            </CardContent>
+          </Card>
+        </div>
 
-              <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                {loading ? 'Sending...' : 'Send Message'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <div className="mt-12 text-center text-gray-600">
-          <p className="mb-2">
-            Prefer email? Reach us at{' '}
-            <a href="mailto:your-email@gmail.com" className="text-black hover:underline">
-              your-email@gmail.com
-            </a>
-          </p>
+        <div className="mt-12 text-center text-gray-500 text-sm">
+          <p>We typically respond within 24-48 hours</p>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

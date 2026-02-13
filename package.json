@@ -6,21 +6,15 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "setup": "echo '\n📦 Installing dependencies...\n' && npm install && echo '\n✅ Setup complete!\n\nNext steps:\n1. Copy .env.example to .env.local\n2. Fill in your Supabase and Stripe credentials\n3. Run: npm run dev\n4. Follow SETUP.md for complete instructions\n'"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.1.0",
-    "@supabase/supabase-js": "^2.39.3",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
     "next": "14.2.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "resend": "^6.9.2",
-    "stripe": "^14.14.0",
-    "tailwind-merge": "^3.4.0",
-    "zod": "^3.22.4"
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@types/node": "^20",

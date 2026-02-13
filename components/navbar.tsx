@@ -1,81 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { ShoppingCart, User, LogOut } from 'lucide-react'
 
 export function Navbar() {
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [cartCount, setCartCount] = useState(0)
-  const supabase = createClient()
-
-  useEffect(() => {
-    // Get user
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      if (user) {
-        // Check if admin
-        supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single()
-          .then(({ data }) => {
-            setIsAdmin(data?.is_admin || false)
-          })
-
-        // Get cart count
-        supabase
-          .from('cart_items')
-          .select('quantity', { count: 'exact' })
-          .eq('user_id', user.id)
-          .then(({ data }) => {
-            const total = data?.reduce((sum, item) => sum + item.quantity, 0) || 0
-            setCartCount(total)
-          })
-      }
-    })
-
-    // Subscribe to cart changes
-    const channel = supabase
-      .channel('cart-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'cart_items',
-        },
-        () => {
-          if (user) {
-            supabase
-              .from('cart_items')
-              .select('quantity')
-              .eq('user_id', user.id)
-              .then(({ data }) => {
-                const total = data?.reduce((sum, item) => sum + item.quantity, 0) || 0
-                setCartCount(total)
-              })
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.id])
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    window.location.href = '/'
-  }
 
   return (
     <nav className="border-b bg-white sticky top-0 z-50">
@@ -85,10 +14,10 @@ export function Navbar() {
             <Link href="/" className="flex items-center space-x-2">
               <div className="relative w-10 h-10">
                 <div className="bg-black w-full h-full flex items-center justify-center text-white font-bold text-xs">
-                  PS
+                  MS
                 </div>
               </div>
-              <span className="font-bold text-lg">PROTEST SIGNS</span>
+              <span className="font-bold text-lg">MINIMAL SITE</span>
             </Link>
 
             <div className="hidden md:flex space-x-6">
@@ -101,12 +30,12 @@ export function Navbar() {
                 Home
               </Link>
               <Link
-                href="/browse"
+                href="/about"
                 className={`${
-                  pathname === '/browse' ? 'text-black' : 'text-gray-600'
+                  pathname === '/about' ? 'text-black' : 'text-gray-600'
                 } hover:text-black transition-colors`}
               >
-                Browse
+                About
               </Link>
               <Link
                 href="/contact"
@@ -116,48 +45,16 @@ export function Navbar() {
               >
                 Contact
               </Link>
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className={`${
-                    pathname.startsWith('/admin') ? 'text-black' : 'text-gray-600'
-                  } hover:text-black transition-colors`}
-                >
-                  Admin
-                </Link>
-              )}
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <>
-                <Link href="/cart" className="relative">
-                  <Button variant="ghost" size="sm">
-                    <ShoppingCart className="w-5 h-5" />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-                <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                  <LogOut className="w-5 h-5" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login">
-                  <Button variant="ghost" size="sm">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button size="sm">Sign Up</Button>
-                </Link>
-              </>
-            )}
+          <div className="md:hidden flex items-center space-x-4">
+            <Link href="/about" className="text-gray-600 hover:text-black text-sm">
+              About
+            </Link>
+            <Link href="/contact" className="text-gray-600 hover:text-black text-sm">
+              Contact
+            </Link>
           </div>
         </div>
       </div>
