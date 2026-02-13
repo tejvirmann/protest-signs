@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { slugify } from '@/lib/utils'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { Loader2, ArrowLeft, Upload, X, Link as LinkIcon } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Tag {
   id: string
@@ -26,9 +26,13 @@ export default function NewSignPage() {
   const [sizes, setSizes] = useState('12x18, 18x24, 24x36')
   const [images, setImages] = useState<string[]>([])
   const [imageUrl, setImageUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<{ [key: string]: number }>({})
+  const [isPopular, setIsPopular] = useState(false)
+  const [isSeasonal, setIsSeasonal] = useState(false)
+  const [displayOrder, setDisplayOrder] = useState('0')
 
   const supabase = createClient()
 
@@ -38,12 +42,50 @@ export default function NewSignPage() {
       if (data) setTags(data)
     }
     fetchTags()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleAddImage = () => {
     if (imageUrl.trim()) {
       setImages([...images, imageUrl.trim()])
       setImageUrl('')
+    }
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setUploading(true)
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
+        const filePath = `signs/${fileName}`
+
+        // Upload to Supabase Storage
+        const { data, error } = await supabase.storage
+          .from('signs')
+          .upload(filePath, file)
+
+        if (error) {
+          alert(`Upload error: ${error.message}`)
+          continue
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('signs')
+          .getPublicUrl(filePath)
+
+        setImages((prev) => [...prev, publicUrl])
+      }
+    } catch (error: any) {
+      alert(`Upload failed: ${error.message}`)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -67,6 +109,9 @@ export default function NewSignPage() {
         quantity_available: parseInt(quantity),
         images,
         sizes: sizes || null,
+        is_popular: isPopular,
+        is_seasonal: isSeasonal,
+        display_order: parseInt(displayOrder) || 0,
       })
       .select()
       .single()
@@ -92,7 +137,7 @@ export default function NewSignPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Link href="/admin/signs">
         <Button variant="ghost" className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -112,7 +157,7 @@ export default function NewSignPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                placeholder="Sign title"
+                placeholder="e.g., CLIMATE JUSTICE NOW"
               />
             </div>
 
@@ -121,7 +166,7 @@ export default function NewSignPage() {
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Sign description"
+                placeholder="Describe the sign, materials, size, and use case..."
                 rows={4}
               />
             </div>
@@ -135,8 +180,11 @@ export default function NewSignPage() {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   required
-                  placeholder="25.00"
+                  placeholder="24.99"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter as decimal (e.g., 24.99)
+                </p>
               </div>
 
               <div>
@@ -146,13 +194,16 @@ export default function NewSignPage() {
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   required
-                  placeholder="100"
+                  placeholder="50"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Stock available
+                </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Sizes</label>
+              <label className="block text-sm font-medium mb-2">Sizes (Optional)</label>
               <Input
                 value={sizes}
                 onChange={(e) => setSizes(e.target.value)}
@@ -161,39 +212,93 @@ export default function NewSignPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Images</label>
-              <div className="flex gap-2 mb-2">
-                <Input
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="Image URL"
-                />
-                <Button type="button" onClick={handleAddImage} variant="outline">
-                  Add
-                </Button>
-              </div>
-              {images.length > 0 && (
-                <div className="space-y-2">
-                  {images.map((url, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm">
-                      <span className="flex-1 truncate">{url}</span>
-                      <Button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        variant="ghost"
-                        size="sm"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
+              <label className="block text-sm font-medium mb-2">Images *</label>
+
+              {/* File Upload */}
+              <div className="mb-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                    disabled={uploading}
+                  />
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-700">
+                      {uploading ? 'Uploading...' : 'Click to upload images'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      PNG, JPG up to 5MB each
+                    </p>
+                  </label>
                 </div>
+              </div>
+
+              {/* OR URL Input */}
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                  <LinkIcon className="w-4 h-4" />
+                  Or add image by URL:
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <Button type="button" onClick={handleAddImage} variant="outline">
+                    Add
+                  </Button>
+                </div>
+              </div>
+
+              {/* Image Preview */}
+              {images.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">
+                    {images.length} {images.length === 1 ? 'image' : 'images'} added:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {images.map((url, index) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
+                          <Image
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          Image {index + 1}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {images.length === 0 && (
+                <p className="text-sm text-gray-500 mt-2">
+                  ⚠️ At least one image is recommended
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Tags</label>
-              <div className="space-y-2">
+              <label className="block text-sm font-medium mb-2">Categories (Tags)</label>
+              <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4">
                 {tags.map((tag) => (
                   <div key={tag.id} className="flex items-center gap-4">
                     <input
@@ -221,8 +326,8 @@ export default function NewSignPage() {
                             [tag.id]: parseInt(e.target.value) || 0,
                           })
                         }
-                        placeholder="Display order"
-                        className="w-32"
+                        placeholder="Order"
+                        className="w-24"
                       />
                     )}
                   </div>
@@ -230,8 +335,57 @@ export default function NewSignPage() {
               </div>
             </div>
 
-            <div className="flex gap-4">
-              <Button type="submit" disabled={loading}>
+            <div>
+              <label className="block text-sm font-medium mb-3">Featured Sections</label>
+              <div className="space-y-3 border rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={isPopular}
+                    onChange={(e) => setIsPopular(e.target.checked)}
+                    className="rounded w-4 h-4"
+                    id="is-popular"
+                  />
+                  <label htmlFor="is-popular" className="flex-1 cursor-pointer">
+                    <span className="font-medium">🔥 Popular Sign</span>
+                    <p className="text-xs text-gray-500">Show in &quot;Popular Signs&quot; section on homepage</p>
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={isSeasonal}
+                    onChange={(e) => setIsSeasonal(e.target.checked)}
+                    className="rounded w-4 h-4"
+                    id="is-seasonal"
+                  />
+                  <label htmlFor="is-seasonal" className="flex-1 cursor-pointer">
+                    <span className="font-medium">🌟 Seasonal Sign</span>
+                    <p className="text-xs text-gray-500">Show in &quot;Seasonal Collection&quot; section</p>
+                  </label>
+                </div>
+
+                {(isPopular || isSeasonal) && (
+                  <div className="pt-2">
+                    <label className="block text-sm font-medium mb-2">Display Order</label>
+                    <Input
+                      type="number"
+                      value={displayOrder}
+                      onChange={(e) => setDisplayOrder(e.target.value)}
+                      placeholder="0"
+                      className="w-32"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Lower numbers appear first (0 = highest priority)
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <Button type="submit" disabled={loading || uploading} size="lg">
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
@@ -242,7 +396,7 @@ export default function NewSignPage() {
                 )}
               </Button>
               <Link href="/admin/signs">
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" size="lg">
                   Cancel
                 </Button>
               </Link>

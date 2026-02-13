@@ -20,24 +20,34 @@ export function Navbar() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
       if (user) {
-        // Check if admin
+        // Check if admin (with error handling to prevent page crash)
         supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', user.id)
           .single()
-          .then(({ data }) => {
-            setIsAdmin(data?.is_admin || false)
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('Error fetching profile:', error.message)
+              setIsAdmin(false) // Default to non-admin on error
+            } else {
+              setIsAdmin(data?.is_admin || false)
+            }
           })
 
-        // Get cart count
+        // Get cart count (with error handling)
         supabase
           .from('cart_items')
           .select('quantity', { count: 'exact' })
           .eq('user_id', user.id)
-          .then(({ data }) => {
-            const total = data?.reduce((sum, item) => sum + item.quantity, 0) || 0
-            setCartCount(total)
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('Error fetching cart:', error.message)
+              setCartCount(0)
+            } else {
+              const total = data?.reduce((sum, item) => sum + item.quantity, 0) || 0
+              setCartCount(total)
+            }
           })
       }
     })
@@ -70,6 +80,7 @@ export function Navbar() {
     return () => {
       supabase.removeChannel(channel)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
 
   const handleSignOut = async () => {
@@ -82,13 +93,16 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="relative w-10 h-10">
-                <div className="bg-black w-full h-full flex items-center justify-center text-white font-bold text-xs">
-                  PS
-                </div>
+            <Link href="/" className="flex items-center">
+              <div className="relative w-16 h-16">
+                <Image
+                  src="/logo.png"
+                  alt="Protest Signs"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
-              <span className="font-bold text-lg">PROTEST SIGNS</span>
             </Link>
 
             <div className="hidden md:flex space-x-6">

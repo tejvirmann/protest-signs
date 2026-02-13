@@ -40,12 +40,14 @@ export default function CartPage() {
       }
     }
     getUser()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     if (user) {
       fetchCart()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const fetchCart = async () => {
