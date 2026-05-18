@@ -1,5 +1,17 @@
 # Protest Signs — TODO
 
+## ⚡ TOP PRIORITY
+
+### Bundle Pricing for Bag Signs (not built)
+- Bag signs have tiered pricing: 1=$14.99, 2=$19.99, 3=$24.99, 4=$29.99, 7=$34.99, 8=$39.99, +$5 each after
+- Currently each bag is listed individually at $14.99 — no bundle discount is applied
+- Need a custom quantity-based pricing UI on the bag sign product page
+- At checkout, recalculate total based on how many bag signs are in the cart combined
+- Stripe line item price would need to be dynamically set based on total bag count
+- Group fundraiser pricing: 50 bags=$195, 100 bags=$295 (probably manual/contact-us flow)
+
+---
+
 ## Email Branding
 
 ### Rebrand auth emails (not done)

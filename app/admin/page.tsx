@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Package, Tags, ShoppingBag, MessageSquare, Users } from 'lucide-react'
+import { Package, Tags, ShoppingBag, MessageSquare, Users, DollarSign } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
@@ -67,6 +67,19 @@ export default async function AdminDashboard() {
           </Card>
         </Link>
 
+        <Link href="/admin/pricing">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Pricing</CardTitle>
+              <DollarSign className="w-4 h-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">Edit</div>
+              <p className="text-xs text-gray-500">Bundle & shipping rates</p>
+            </CardContent>
+          </Card>
+        </Link>
+
         {isOwner ? (
           <Link href="/admin/users">
             <Card className="hover:shadow-md transition-shadow cursor-pointer border-purple-200">
@@ -112,6 +125,9 @@ export default async function AdminDashboard() {
             </Link>
             <Link href="/admin/orders">
               <Button variant="outline">View Orders</Button>
+            </Link>
+            <Link href="/admin/pricing">
+              <Button variant="outline">Edit Pricing</Button>
             </Link>
             {isOwner && (
               <Link href="/admin/users">
