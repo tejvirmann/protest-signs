@@ -232,7 +232,7 @@ export default function SignDetailPage() {
                     <span className="font-semibold">{formatPrice(paperShipping)}</span>
                   </div>
                   <div className="border-t pt-2 text-gray-500 text-xs space-y-1">
-                    <p>Size: 13.25" × 26" — 130# cardstock (heavy paper)</p>
+                    <p>Size: 13.25&quot; × 26&quot; — 130# cardstock (heavy paper)</p>
                     <p>Need <strong>2 copies</strong> for a double-sided sign</p>
                   </div>
                 </div>
