@@ -35,3 +35,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Client notes and assets (keep private)
+buck-comments.txt
+buck-comments-2.md
+signs-2/
+seed-signs.mjs
