@@ -22,6 +22,7 @@ interface Sign {
   price: number
   images: string[]
   quantity_available: number
+  product_type: string | null
   is_popular?: boolean
   is_seasonal?: boolean
 }
@@ -32,26 +33,23 @@ function BrowsePageContent() {
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [featuredFilter, setFeaturedFilter] = useState<string>('')
+  const [typeFilter, setTypeFilter] = useState<string>('')
   const [loading, setLoading] = useState(true)
-  const [sortBy, setSortBy] = useState('newest')
+  const [sortBy, setSortBy] = useState('order')
 
   const supabase = createClient()
 
   useEffect(() => {
-    // Get pre-selected filters from URL
     const tagParam = searchParams.get('tag')
     const featuredParam = searchParams.get('featured')
+    const typeParam = searchParams.get('type')
 
-    if (tagParam) {
-      setSelectedTags([tagParam])
-    }
-    if (featuredParam) {
-      setFeaturedFilter(featuredParam)
-    }
+    if (tagParam) setSelectedTags([tagParam])
+    if (featuredParam) setFeaturedFilter(featuredParam)
+    if (typeParam) setTypeFilter(typeParam)
   }, [searchParams])
 
   useEffect(() => {
-    // Fetch all tags
     const fetchTags = async () => {
       const { data } = await supabase
         .from('tags')
@@ -64,7 +62,6 @@ function BrowsePageContent() {
   }, [])
 
   useEffect(() => {
-    // Fetch signs based on filters
     const fetchSigns = async () => {
       setLoading(true)
       let query = supabase
@@ -73,25 +70,28 @@ function BrowsePageContent() {
         .is('archived_at', null)
         .gt('quantity_available', 0)
 
-      // Apply featured filter
       if (featuredFilter === 'popular') {
         query = query.eq('is_popular', true)
       } else if (featuredFilter === 'seasonal') {
         query = query.eq('is_seasonal', true)
       }
 
-      // Apply sorting
+      if (typeFilter === 'paper') {
+        query = query.eq('product_type', 'paper')
+      } else if (typeFilter === 'bag') {
+        query = query.eq('product_type', 'bag')
+      }
+
       if (sortBy === 'price-asc') {
         query = query.order('price', { ascending: true })
       } else if (sortBy === 'price-desc') {
         query = query.order('price', { ascending: false })
       } else {
-        query = query.order('created_at', { ascending: false })
+        query = query.order('display_order', { ascending: true })
       }
 
       const { data: allSigns } = await query
 
-      // Filter by tags (OR logic)
       if (selectedTags.length > 0 && allSigns) {
         const { data: signTags } = await supabase
           .from('sign_tags')
@@ -117,7 +117,7 @@ function BrowsePageContent() {
       fetchSigns()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTags, featuredFilter, sortBy, tags])
+  }, [selectedTags, featuredFilter, typeFilter, sortBy, tags])
 
   const toggleTag = (slug: string) => {
     if (selectedTags.includes(slug)) {
@@ -130,7 +130,10 @@ function BrowsePageContent() {
   const clearFilters = () => {
     setSelectedTags([])
     setFeaturedFilter('')
+    setTypeFilter('')
   }
+
+  const hasFilters = selectedTags.length > 0 || featuredFilter || typeFilter
 
   return (
     <div className="min-h-screen bg-white">
@@ -146,7 +149,7 @@ function BrowsePageContent() {
             <div className="bg-gray-50 rounded-lg p-6 sticky top-20">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-bold text-lg">Filters</h2>
-                {(selectedTags.length > 0 || featuredFilter) && (
+                {hasFilters && (
                   <button
                     onClick={clearFilters}
                     className="text-sm text-gray-600 hover:text-black"
@@ -157,6 +160,33 @@ function BrowsePageContent() {
               </div>
 
               <div className="space-y-6">
+                {/* Sign Type */}
+                <div>
+                  <h3 className="font-semibold mb-3">Sign Type</h3>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => setTypeFilter(typeFilter === 'paper' ? '' : 'paper')}
+                      className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                        typeFilter === 'paper'
+                          ? 'bg-black text-white font-semibold'
+                          : 'bg-white hover:bg-gray-100'
+                      }`}
+                    >
+                      Paper Signs
+                    </button>
+                    <button
+                      onClick={() => setTypeFilter(typeFilter === 'bag' ? '' : 'bag')}
+                      className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                        typeFilter === 'bag'
+                          ? 'bg-black text-white font-semibold'
+                          : 'bg-white hover:bg-gray-100'
+                      }`}
+                    >
+                      Plastic Bag Signs
+                    </button>
+                  </div>
+                </div>
+
                 {/* Featured Collections */}
                 <div>
                   <h3 className="font-semibold mb-3">Collections</h3>
@@ -169,7 +199,7 @@ function BrowsePageContent() {
                           : 'bg-white hover:bg-gray-100'
                       }`}
                     >
-                      🔥 Popular Signs
+                      Popular Signs
                     </button>
                     <button
                       onClick={() => setFeaturedFilter(featuredFilter === 'seasonal' ? '' : 'seasonal')}
@@ -179,7 +209,7 @@ function BrowsePageContent() {
                           : 'bg-white hover:bg-gray-100'
                       }`}
                     >
-                      ⭐ Featured Collection
+                      Featured Collection
                     </button>
                   </div>
                 </div>
@@ -213,7 +243,7 @@ function BrowsePageContent() {
                     onChange={(e) => setSortBy(e.target.value)}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                   >
-                    <option value="newest">Newest First</option>
+                    <option value="order">Sign Number (1–43)</option>
                     <option value="price-asc">Price: Low to High</option>
                     <option value="price-desc">Price: High to Low</option>
                   </select>
@@ -225,11 +255,22 @@ function BrowsePageContent() {
           {/* Signs Grid */}
           <div className="flex-1">
             {/* Active Filters */}
-            {(selectedTags.length > 0 || featuredFilter) && (
+            {hasFilters && (
               <div className="mb-6 flex flex-wrap gap-2">
+                {typeFilter && (
+                  <span className="inline-flex items-center gap-1 bg-black text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {typeFilter === 'paper' ? 'Paper Signs' : 'Plastic Bag Signs'}
+                    <button
+                      onClick={() => setTypeFilter('')}
+                      className="hover:bg-gray-800 rounded-full p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
                 {featuredFilter && (
                   <span className="inline-flex items-center gap-1 bg-black text-white px-3 py-1 rounded-full text-sm font-medium">
-                    {featuredFilter === 'popular' ? '🔥 Popular' : '⭐ Featured'}
+                    {featuredFilter === 'popular' ? 'Popular' : 'Featured'}
                     <button
                       onClick={() => setFeaturedFilter('')}
                       className="hover:bg-gray-800 rounded-full p-0.5"
@@ -281,37 +322,68 @@ function BrowsePageContent() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {signs.map((sign) => (
+                  {signs.map((sign, index) => (
                     <Link
                       key={sign.id}
                       href={`/sign/${sign.id}`}
                       className="group cursor-pointer"
                     >
                       <Card className="overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300 h-full">
-                        <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
-                          {sign.images.length > 0 ? (
-                            <Image
-                              src={sign.images[0]}
-                              alt={sign.title}
-                              fill
-                              className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              <Megaphone className="w-16 h-16" />
+                        {sign.product_type === 'bag' && sign.images.length >= 2 ? (
+                          <div className="flex overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                            <div className="relative flex-1 aspect-[3/4]">
+                              <Image
+                                src={sign.images[0]}
+                                alt={`${sign.title} — Side A`}
+                                fill
+                                priority={index < 6}
+                                sizes="(max-width: 640px) calc(50vw - 1rem), (max-width: 1024px) calc(25vw - 1rem), calc(16vw - 1rem)"
+                                className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                              />
                             </div>
-                          )}
-                          {sign.quantity_available <= 5 && (
-                            <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">
-                              {sign.quantity_available} left
+                            <div className="relative flex-1 aspect-[3/4] border-l border-gray-200">
+                              <Image
+                                src={sign.images[1]}
+                                alt={`${sign.title} — Side B`}
+                                fill
+                                priority={index < 6}
+                                sizes="(max-width: 640px) calc(50vw - 1rem), (max-width: 1024px) calc(25vw - 1rem), calc(16vw - 1rem)"
+                                className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                              />
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+                            {sign.images.length > 0 ? (
+                              <Image
+                                src={sign.images[0]}
+                                alt={sign.title}
+                                fill
+                                priority={index < 6}
+                                sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(50vw - 4rem), calc(33vw - 5rem)"
+                                className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                <Megaphone className="w-16 h-16" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {sign.quantity_available <= 5 && (
+                          <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg">
+                            {sign.quantity_available} left
+                          </div>
+                        )}
                         <CardContent className="p-5">
                           <h4 className="font-bold text-base mb-3 group-hover:text-gray-700 transition-colors line-clamp-2 min-h-[3rem]">
                             {sign.title}
                           </h4>
-                          <p className="text-2xl font-bold text-black">{formatPrice(sign.price)}</p>
+                          {sign.product_type === 'bag' ? (
+                            <p className="text-xs text-gray-500">Front &amp; back shown · bundle pricing</p>
+                          ) : (
+                            <p className="text-2xl font-bold text-black">{formatPrice(sign.price)}</p>
+                          )}
                         </CardContent>
                       </Card>
                     </Link>
