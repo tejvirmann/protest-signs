@@ -30,6 +30,7 @@ export default function NewSignPage() {
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<{ [key: string]: number }>({})
+  const [productType, setProductType] = useState<'paper' | 'bag'>('paper')
   const [isPopular, setIsPopular] = useState(false)
   const [isSeasonal, setIsSeasonal] = useState(false)
   const [displayOrder, setDisplayOrder] = useState('0')
@@ -109,6 +110,7 @@ export default function NewSignPage() {
         quantity_available: parseInt(quantity),
         images,
         sizes: sizes || null,
+        product_type: productType,
         is_popular: isPopular,
         is_seasonal: isSeasonal,
         display_order: parseInt(displayOrder) || 0,
@@ -212,6 +214,45 @@ export default function NewSignPage() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium mb-2">Sign Type *</label>
+              <div className="flex gap-4 border rounded-lg p-4">
+                <label className="flex items-start gap-3 cursor-pointer flex-1">
+                  <input
+                    type="radio"
+                    name="product_type"
+                    value="paper"
+                    checked={productType === 'paper'}
+                    onChange={() => setProductType('paper')}
+                    className="mt-1"
+                  />
+                  <div>
+                    <span className="font-medium">Paper Sign</span>
+                    <p className="text-xs text-gray-500">Printed on cardstock. Single image shown in store.</p>
+                  </div>
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer flex-1">
+                  <input
+                    type="radio"
+                    name="product_type"
+                    value="bag"
+                    checked={productType === 'bag'}
+                    onChange={() => setProductType('bag')}
+                    className="mt-1"
+                  />
+                  <div>
+                    <span className="font-medium">Plastic Bag Sign</span>
+                    <p className="text-xs text-gray-500">Bundle pricing applies. Add 2 images to show front &amp; back side-by-side in the store.</p>
+                  </div>
+                </label>
+              </div>
+              {productType === 'bag' && (
+                <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-sm text-blue-800">
+                  Upload <strong>2 images</strong> — the first will be Side A (front), the second will be Side B (back). Both are shown side-by-side on the homepage and browse page.
+                </div>
+              )}
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-2">Images *</label>
 
               {/* File Upload */}
@@ -281,7 +322,7 @@ export default function NewSignPage() {
                           <X className="w-4 h-4" />
                         </button>
                         <p className="text-xs text-gray-500 mt-1 truncate">
-                          Image {index + 1}
+                          {productType === 'bag' && index === 0 ? 'Side A (front)' : productType === 'bag' && index === 1 ? 'Side B (back)' : `Image ${index + 1}`}
                         </p>
                       </div>
                     ))}

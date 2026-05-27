@@ -123,6 +123,14 @@ export function Navbar() {
                 Browse
               </Link>
               <Link
+                href="/about"
+                className={`${
+                  pathname === '/about' ? 'text-black' : 'text-gray-600'
+                } hover:text-black transition-colors`}
+              >
+                About Us
+              </Link>
+              <Link
                 href="/contact"
                 className={`${
                   pathname === '/contact' ? 'text-black' : 'text-gray-600'
