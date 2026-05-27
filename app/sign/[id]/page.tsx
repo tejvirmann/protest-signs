@@ -129,9 +129,9 @@ export default function SignDetailPage() {
 
           {/* Images */}
           <div>
-            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4 relative">
+            <div className="relative w-full aspect-[4/3] md:aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
               {sign.images.length > 0 ? (
-                <Image src={sign.images[selectedImageIndex]} alt={sign.title} fill className="object-contain p-4" />
+                <Image src={sign.images[selectedImageIndex]} alt={sign.title} fill priority sizes="(max-width: 768px) calc(100vw - 2rem), calc(50vw - 4rem)" className="object-contain p-4" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">No image available</div>
               )}
@@ -144,7 +144,7 @@ export default function SignDetailPage() {
                     onClick={() => setSelectedImageIndex(index)}
                     className={`aspect-square bg-gray-100 rounded-lg overflow-hidden relative ${selectedImageIndex === index ? 'ring-2 ring-black' : ''}`}
                   >
-                    <Image src={image} alt={`Side ${index + 1}`} fill className="object-contain p-2" />
+                    <Image src={image} alt={`Side ${index + 1}`} fill sizes="120px" className="object-contain p-2" />
                   </button>
                 ))}
               </div>

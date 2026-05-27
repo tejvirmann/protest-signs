@@ -1,0 +1,17 @@
+{
+  "name": "Protest Signs",
+  "short_name": "ProtestSigns",
+  "description": "High-quality protest and rally signs. Make your voice heard.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/logo-tab.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
