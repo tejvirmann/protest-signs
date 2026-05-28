@@ -36,8 +36,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# backup files
+*.bak
+
 # Client notes and assets (keep private)
 buck-comments.txt
 buck-comments-2.md
 signs-2/
 seed-signs.mjs
+
+# local TODO files
+TODO*.md
