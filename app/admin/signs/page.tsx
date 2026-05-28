@@ -3,7 +3,8 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/utils'
-import { Edit, Trash2, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import { SignActions } from './sign-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,11 +93,7 @@ export default async function AdminSignsPage() {
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link href={`/admin/signs/${sign.id}/edit`}>
-                    <Button variant="ghost" size="sm">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                  </Link>
+                  <SignActions id={sign.id} archivedAt={sign.archived_at} />
                 </td>
               </tr>
             ))}

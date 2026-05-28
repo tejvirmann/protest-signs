@@ -172,25 +172,25 @@ export function SignCard({
           )}
 
           {/* Buttons */}
-          <div className="mt-auto space-y-2">
+          <div className="mt-auto flex gap-2">
             <Button
               size="sm"
               variant="outline"
-              className="w-full text-xs h-8"
+              className="flex-1 text-xs h-7 border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-black"
               onClick={handleAddToCart}
               disabled={adding || buyingNow}
             >
               {added ? (
-                <><Check className="w-3 h-3 mr-1" />Added!</>
+                <><Check className="w-3 h-3 mr-1" />Added</>
               ) : adding ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : (
-                <><ShoppingCart className="w-3 h-3 mr-1" />Add to Cart</>
+                <><ShoppingCart className="w-3 h-3 mr-1" />Cart</>
               )}
             </Button>
             <Button
               size="sm"
-              className="w-full text-xs h-8 bg-amber-500 hover:bg-amber-600 text-white border-0"
+              className="flex-1 text-xs h-7 bg-black hover:bg-gray-800 text-white border-0"
               onClick={handleBuyNow}
               disabled={buyingNow || adding}
             >

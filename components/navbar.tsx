@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, LogOut } from 'lucide-react'
+import { ShoppingCart, LogOut, User } from 'lucide-react'
 import { getGuestCartCount } from '@/lib/guest-cart'
 
 export function Navbar() {
@@ -171,9 +171,16 @@ export function Navbar() {
               </Button>
             </Link>
             {user ? (
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-5 h-5" />
-              </Button>
+              <>
+                <Link href="/account">
+                  <Button variant="ghost" size="sm" title="Account settings">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={handleSignOut} title="Sign out">
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </>
             ) : (
               <>
                 <Link href="/auth/login">

@@ -71,12 +71,17 @@ export async function POST(request: Request) {
         return i.quantity > 1 ? `${sign.title} ×${i.quantity}` : sign.title
       }).join(', ')
 
+      const bagImages = bagItems
+        .flatMap((i: any) => signs.find((s) => s.id === i.sign_id)?.images ?? [])
+        .slice(0, 8)
+
       lineItems.push({
         price_data: {
           currency: 'usd',
           product_data: {
             name: `Bag Signs Bundle (${totalBagQty} bag${totalBagQty !== 1 ? 's' : ''})`,
             description: bagNames,
+            ...(bagImages.length > 0 ? { images: bagImages } : {}),
           },
           unit_amount: bagBundlePrice,
         },
@@ -115,12 +120,14 @@ export async function POST(request: Request) {
       })
     }
 
+    const origin = request.headers.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
       line_items: lineItems,
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cart`,
+      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/cart`,
       ...(user ? {} : { customer_creation: 'always' as const }),
       metadata: {
         ...(user ? { user_id: user.id } : { guest: 'true' }),

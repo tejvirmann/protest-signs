@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { mergeGuestCartToSupabase } from '@/lib/guest-cart'
 import { Button } from '@/components/ui/button'
@@ -10,7 +9,6 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -42,8 +40,7 @@ export default function LoginPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) await mergeGuestCartToSupabase(supabase, user.id)
       const next = new URLSearchParams(window.location.search).get('next') || '/'
-      router.push(next)
-      router.refresh()
+      window.location.href = next
     }
   }
 
