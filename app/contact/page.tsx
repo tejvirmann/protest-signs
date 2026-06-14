@@ -11,6 +11,8 @@ export default function ContactPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
+  const [website, setWebsite] = useState('')
+  const [isHuman, setIsHuman] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -30,6 +32,7 @@ export default function ContactPage() {
           name,
           email,
           message,
+          website,
         }),
       })
 
@@ -133,7 +136,34 @@ export default function ContactPage() {
                 />
               </div>
 
-              <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {/* Honeypot field: hidden from real visitors, often filled in by bots */}
+              <div className="h-0 w-0 overflow-hidden opacity-0" aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input
+                  id="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  id="isHuman"
+                  type="checkbox"
+                  checked={isHuman}
+                  onChange={(e) => setIsHuman(e.target.checked)}
+                  required
+                  className="h-4 w-4"
+                />
+                <label htmlFor="isHuman" className="text-sm font-medium">
+                  I&apos;m human, not a robot
+                </label>
+              </div>
+
+              <Button type="submit" size="lg" className="w-full" disabled={loading || !isHuman}>
                 {loading ? 'Sending...' : 'Send Message'}
               </Button>
             </form>
@@ -143,8 +173,8 @@ export default function ContactPage() {
         <div className="mt-12 text-center text-gray-600">
           <p className="mb-2">
             Prefer email? Reach us at{' '}
-            <a href="mailto:your-email@gmail.com" className="text-black hover:underline">
-              your-email@gmail.com
+            <a href="mailto:sustainamericallc@gmail.com" className="text-black hover:underline">
+              sustainamericallc@gmail.com
             </a>
           </p>
         </div>

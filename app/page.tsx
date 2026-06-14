@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
@@ -182,7 +183,7 @@ export default async function HomePage() {
               Stand up, speak out, make an impact.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/browse?type=paper">
+              <Link href="/browse">
                 <Button size="lg" className="bg-white text-black hover:bg-gray-100 border-white text-lg px-8 py-6">
                   Browse All Signs
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -244,42 +245,76 @@ export default async function HomePage() {
       {/* Bag Sign Pricing Section */}
       {bagTiers.length > 0 && (
         <section className="py-16 bg-gray-50 border-b">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
               <div className="inline-block bg-black text-white text-sm font-bold px-3 py-1 rounded-full mb-3">
                 BUNDLE &amp; SAVE
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-3">Plastic Bag Sign Pricing</h2>
-              <p className="text-gray-600">Shipping included in all bag sign prices</p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Welcome to the 21st Century</h2>
+              <p className="text-gray-600 max-w-3xl mx-auto">
+                If you can cut a piece of cardboard to size and attach it (staple, glue, or tape)
+                to a stick, the only thing left to make a sign is sliding a bag over the
+                cardboard for a quick, easy, inexpensive sign. A few staples across the bottom,
+                pulling things tight, and you&apos;re done.
+              </p>
+              <p className="text-gray-600 max-w-3xl mx-auto mt-2">
+                Cut your cardboard about an inch smaller than the bag in each direction —{' '}
+                <strong>28&quot; × 23&quot;</strong> for the bag signs, or{' '}
+                <strong>23&quot; × 23&quot;</strong> for the peace sign.
+              </p>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
-              <table className="w-full text-sm sm:text-base">
-                <thead>
-                  <tr className="bg-black text-white">
-                    <th className="px-6 py-3 text-left font-semibold">Quantity</th>
-                    <th className="px-6 py-3 text-right font-semibold">Price (shipping included)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {bagTiers.map((tier, i) => (
-                    <tr key={tier.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                      <td className="px-6 py-4 text-gray-800">{tier.label}</td>
-                      <td className="px-6 py-4 text-right font-bold text-black">
-                        {formatPrice(tier.price)}
-                        {tier.max_qty === null && tier.overflow_unit_price != null && (
-                          <span className="text-gray-500 font-normal text-sm"> + {formatPrice(tier.overflow_unit_price)}/bag</span>
-                        )}
-                      </td>
+            <div className="grid md:grid-cols-2 gap-8 items-stretch">
+              <div className="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col">
+                <table className="w-full text-sm sm:text-base">
+                  <thead>
+                    <tr className="bg-black text-white">
+                      <th className="px-6 py-3 text-left font-semibold">Quantity</th>
+                      <th className="px-6 py-3 text-right font-semibold">Price (shipping included)</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {bagTiers.map((tier, i) => (
+                      <tr key={tier.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-6 py-4 text-gray-800">{tier.label}</td>
+                        <td className="px-6 py-4 text-right font-bold text-black">
+                          {formatPrice(tier.price)}
+                          {tier.max_qty === null && tier.overflow_unit_price != null && (
+                            <span className="text-gray-500 font-normal text-sm"> + {formatPrice(tier.overflow_unit_price)}/bag</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="bg-amber-50 border-t border-amber-200 p-5 text-sm text-amber-900 mt-auto">
+                  <p className="font-semibold mb-1">Want the same message on both sides — or something different?</p>
+                  <p>Just buy two bags and staple the side of the second bag you want showing outward. It&apos;s that easy.</p>
+                </div>
+              </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-sm text-amber-900">
-              <p className="font-semibold mb-1">Want the same message on both sides — or something different?</p>
-              <p>Just buy two bags and staple the side of the second bag you want showing outward. It&apos;s that easy.</p>
+              <div className="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col">
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src="/white-on-cardboard.jpg"
+                    alt="Side-by-side comparison of a sign with white paper over the cardboard and a sign with plain cardboard showing through"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-5 text-sm text-gray-700 space-y-2">
+                  <p>
+                    <strong>Left:</strong> white paper over the cardboard.{' '}
+                    <strong>Right:</strong> plain cardboard showing through.
+                  </p>
+                  <p>
+                    If your cardboard has printing or text on it, we suggest covering it with
+                    white paper first so it doesn&apos;t show through the bag. Otherwise, it&apos;s
+                    up to you — plain cardboard works just fine.
+                  </p>
+                  <p className="text-gray-400 italic">Video walkthrough coming soon.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -296,7 +331,7 @@ export default async function HomePage() {
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold mb-3">Popular Plastic Bag Signs</h2>
                 <p className="text-lg text-gray-600 max-w-2xl">
-                  Reusable plastic bag signs — weatherproof and ready to carry. Each bag shows both sides.
+                  Reusable plastic bag signs — weatherproof and ready to carry. Each image shows both sides.
                 </p>
               </div>
               <Link

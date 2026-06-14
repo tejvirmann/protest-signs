@@ -44,6 +44,7 @@ buck-comments.txt
 buck-comments-2.md
 signs-2/
 seed-signs.mjs
+/buck-comments-3
 
 # local TODO files
 TODO*.md

@@ -146,6 +146,14 @@ export function Navbar() {
               >
                 Contact
               </Link>
+              <Link
+                href="/donate"
+                className={`${
+                  pathname === '/donate' ? 'text-black' : 'text-gray-600'
+                } hover:text-black transition-colors`}
+              >
+                Donate
+              </Link>
               {isAdmin && (
                 <Link
                   href="/admin"

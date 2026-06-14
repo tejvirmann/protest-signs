@@ -1,14 +1,12 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { clearGuestCart } from '@/lib/guest-cart'
 
-function CheckoutSuccessContent() {
-  const searchParams = useSearchParams()
+export default function CheckoutSuccessPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -30,12 +28,9 @@ function CheckoutSuccessContent() {
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
         <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
         <h1 className="text-3xl font-bold mb-2">Order Successful!</h1>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 mb-8">
           Thank you for your purchase. Your order has been confirmed and will be
           processed shortly.
-        </p>
-        <p className="text-sm text-gray-500 mb-8">
-          Session ID: {searchParams.get('session_id')}
         </p>
         <div className="space-y-3">
           <Link href="/" className="block">
@@ -44,17 +39,5 @@ function CheckoutSuccessContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-export default function CheckoutSuccessPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    }>
-      <CheckoutSuccessContent />
-    </Suspense>
   )
 }

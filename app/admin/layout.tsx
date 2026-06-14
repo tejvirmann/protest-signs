@@ -40,7 +40,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-black text-white">
+      <div className="bg-black text-white print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <h1 className="text-xl font-bold">Admin</h1>
@@ -61,7 +61,7 @@ export default async function AdminLayout({
           </nav>
         </div>
       </div>
-      <div className="py-8">
+      <div className="py-8 print:py-0">
         {children}
       </div>
     </div>

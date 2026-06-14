@@ -30,6 +30,7 @@ export default function NewSignPage() {
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<{ [key: string]: number }>({})
+  const [weightOz, setWeightOz] = useState('')
   const [productType, setProductType] = useState<'paper' | 'bag'>('paper')
   const [isPopular, setIsPopular] = useState(false)
   const [isSeasonal, setIsSeasonal] = useState(false)
@@ -111,6 +112,7 @@ export default function NewSignPage() {
         images,
         sizes: sizes || null,
         product_type: productType,
+        weight_oz: weightOz ? parseInt(weightOz) : null,
         is_popular: isPopular,
         is_seasonal: isSeasonal,
         display_order: parseInt(displayOrder) || 0,
@@ -211,6 +213,19 @@ export default function NewSignPage() {
                 onChange={(e) => setSizes(e.target.value)}
                 placeholder="12x18, 18x24, 24x36"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Weight (oz)</label>
+              <Input
+                type="number"
+                value={weightOz}
+                onChange={(e) => setWeightOz(e.target.value)}
+                placeholder="10"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Weight of one item, in ounces. Used to fill in the USPS shipping label CSV.
+              </p>
             </div>
 
             <div>

@@ -27,6 +27,7 @@ export default function EditSignPage() {
   const [price, setPrice] = useState('')
   const [quantity, setQuantity] = useState('')
   const [sizes, setSizes] = useState('')
+  const [weightOz, setWeightOz] = useState('')
   const [images, setImages] = useState<string[]>([])
   const [imageUrl, setImageUrl] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -57,6 +58,7 @@ export default function EditSignPage() {
       setArchivedAt(sign.archived_at)
       // eslint-disable-next-line
       const s = sign as any // fields added by migrations not yet in generated types
+      setWeightOz(s.weight_oz != null ? String(s.weight_oz) : '')
       setProductType(s.product_type ?? 'paper')
       setIsPopular(s.is_popular ?? false)
       setIsSeasonal(s.is_seasonal ?? false)
@@ -110,6 +112,7 @@ export default function EditSignPage() {
       quantity_available: parseInt(quantity),
       images,
       sizes: sizes || null,
+      weight_oz: weightOz ? parseInt(weightOz) : null,
       product_type: productType,
       is_popular: isPopular,
       is_seasonal: isSeasonal,
@@ -192,6 +195,14 @@ export default function EditSignPage() {
             <div>
               <label className="block text-sm font-medium mb-2">Sizes</label>
               <Input value={sizes} onChange={(e) => setSizes(e.target.value)} placeholder="12x18, 18x24, 24x36" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Weight (oz)</label>
+              <Input type="number" value={weightOz} onChange={(e) => setWeightOz(e.target.value)} placeholder="10" />
+              <p className="text-xs text-gray-500 mt-1">
+                Weight of one item, in ounces. Used to fill in the USPS shipping label CSV.
+              </p>
             </div>
 
             <div>

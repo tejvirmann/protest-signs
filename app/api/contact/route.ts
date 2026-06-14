@@ -4,7 +4,13 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   try {
-    const { name, email, message } = await request.json()
+    const { name, email, message, website } = await request.json()
+
+    // Honeypot field — real visitors never fill this in. Bots that do get a
+    // fake success response so they don't know they were blocked.
+    if (website) {
+      return NextResponse.json({ success: true })
+    }
 
     // Validate input
     if (!name || !email || !message) {
@@ -37,7 +43,7 @@ export async function POST(request: Request) {
     try {
       await resend.emails.send({
         from: 'Protest Signs <onboarding@resend.dev>', // Default Resend address
-        to: process.env.CONTACT_EMAIL || 'your-email@gmail.com',
+        to: process.env.CONTACT_EMAIL || 'sustainamericallc@gmail.com',
         replyTo: email,
         subject: `New Contact Form: ${name}`,
         html: `
