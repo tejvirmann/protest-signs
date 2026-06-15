@@ -8,7 +8,7 @@ const adminClient = createSupabaseAdmin(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -22,7 +22,12 @@ export async function GET() {
 
   if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: orders, error } = await adminClient
+  const { searchParams } = new URL(request.url)
+  const ids = searchParams.get('ids')
+  const from = searchParams.get('from')
+  const to = searchParams.get('to')
+
+  let query = adminClient
     .from('orders')
     .select(`
       id,
@@ -40,9 +45,23 @@ export async function GET() {
         signs ( title, weight_oz )
       )
     `)
-    .eq('status', 'completed')
     .not('shipping_address_line1', 'is', null)
-    .order('created_at', { ascending: true })
+
+  if (ids) {
+    const idList = ids.split(',').map((s) => s.trim()).filter(Boolean)
+    query = query.in('id', idList)
+  } else {
+    // Default export = orders that still need to ship, unless a date range
+    // is given (in which case Buck likely wants a record of everything in
+    // that range, regardless of status).
+    if (!from && !to) {
+      query = query.eq('status', 'completed')
+    }
+    if (from) query = query.gte('created_at', from)
+    if (to) query = query.lte('created_at', `${to}T23:59:59.999Z`)
+  }
+
+  const { data: orders, error } = await query.order('created_at', { ascending: true })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

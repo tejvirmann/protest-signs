@@ -299,7 +299,8 @@ export default async function HomePage() {
                     src="/white-on-cardboard.jpg"
                     alt="Side-by-side comparison of a sign with white paper over the cardboard and a sign with plain cardboard showing through"
                     fill
-                    className="object-cover"
+                    className="object-contain"
+                    sizes="(min-width: 768px) 50vw, 100vw"
                   />
                 </div>
                 <div className="p-5 text-sm text-gray-700 space-y-2">
