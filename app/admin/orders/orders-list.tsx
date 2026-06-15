@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Download, ExternalLink, FileText } from 'lucide-react'
+import { Download, ExternalLink, FileText, AlertCircle } from 'lucide-react'
 
 const STATUS_STYLES: Record<string, string> = {
   completed: 'bg-blue-100 text-blue-800',
@@ -43,6 +43,7 @@ export function OrdersList({ orders }: { orders: Order[] }) {
   const supabase = createClient()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [updating, setUpdating] = useState<string | null>(null)
+  const [statusError, setStatusError] = useState<string | null>(null)
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -55,8 +56,13 @@ export function OrdersList({ orders }: { orders: Order[] }) {
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setUpdating(orderId)
-    await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
+    setStatusError(null)
+    const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
     setUpdating(null)
+    if (error) {
+      setStatusError(error.message)
+      return
+    }
     router.refresh()
   }
 
@@ -64,15 +70,35 @@ export function OrdersList({ orders }: { orders: Order[] }) {
     window.open(`/api/admin/orders/export-usps?ids=${Array.from(selected).join(',')}`, '_blank')
   }
 
+  const printSelected = () => {
+    window.open(`/admin/orders/packing-slips?ids=${Array.from(selected).join(',')}`, '_blank')
+  }
+
   return (
     <div className="space-y-6">
+      {statusError && (
+        <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 flex items-start gap-2 text-sm">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-medium">Couldn&apos;t update order status</p>
+            <p className="text-red-700">{statusError}</p>
+          </div>
+        </div>
+      )}
+
       {selected.size > 0 && (
-        <div className="sticky top-16 z-10 bg-black text-white rounded-lg shadow px-4 py-3 flex items-center justify-between">
+        <div className="sticky top-16 z-10 bg-black text-white rounded-lg shadow px-4 py-3 flex items-center justify-between gap-2">
           <span className="text-sm">{selected.size} order{selected.size === 1 ? '' : 's'} selected</span>
-          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white/10" onClick={exportSelected}>
-            <Download className="w-4 h-4 mr-2" />
-            Export Selected to CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="border-white text-white hover:bg-white/10" onClick={printSelected}>
+              <FileText className="w-4 h-4 mr-2" />
+              Print Packing Slips
+            </Button>
+            <Button variant="outline" size="sm" className="border-white text-white hover:bg-white/10" onClick={exportSelected}>
+              <Download className="w-4 h-4 mr-2" />
+              Export Selected to CSV
+            </Button>
+          </div>
         </div>
       )}
 

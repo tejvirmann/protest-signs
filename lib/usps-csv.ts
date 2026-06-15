@@ -110,7 +110,7 @@ export function buildUspsCsv(orders: UspsOrder[], sender: UspsSender): string {
       itemW.lb, // Item Weight (lb)
       itemW.oz, // Item Weight (oz)
       itemValue.toFixed(2), // Item Value
-      '', '', // HS Tariff #, Country of Origin
+      '', 'US', // HS Tariff #, Country of Origin
       '', '', '', // Sender First/Middle/Last Name
       sender.name, // Sender Company/Org Name
       sender.addressLine1,

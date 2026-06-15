@@ -26,6 +26,8 @@ export async function GET(request: Request) {
   const ids = searchParams.get('ids')
   const from = searchParams.get('from')
   const to = searchParams.get('to')
+  const status = searchParams.get('status')
+  const customer = searchParams.get('customer')
 
   let query = adminClient
     .from('orders')
@@ -51,14 +53,17 @@ export async function GET(request: Request) {
     const idList = ids.split(',').map((s) => s.trim()).filter(Boolean)
     query = query.in('id', idList)
   } else {
-    // Default export = orders that still need to ship, unless a date range
-    // is given (in which case Buck likely wants a record of everything in
-    // that range, regardless of status).
-    if (!from && !to) {
+    // Default export = orders that still need to ship, unless a status or
+    // date range is given (in which case Buck likely wants a record of
+    // everything matching that filter, regardless of status).
+    if (status) {
+      query = query.eq('status', status)
+    } else if (!from && !to) {
       query = query.eq('status', 'completed')
     }
     if (from) query = query.gte('created_at', from)
     if (to) query = query.lte('created_at', `${to}T23:59:59.999Z`)
+    if (customer) query = query.ilike('customer_email', `%${customer}%`)
   }
 
   const { data: orders, error } = await query.order('created_at', { ascending: true })

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
-import { Download } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 import Link from 'next/link'
 import { OrdersList } from './orders-list'
 
@@ -14,6 +14,7 @@ interface SearchParams {
   status?: string
   from?: string
   to?: string
+  customer?: string
   page?: string
 }
 
@@ -55,6 +56,9 @@ export default async function AdminOrdersPage({
   if (searchParams.to) {
     query = query.lte('created_at', `${searchParams.to}T23:59:59.999Z`)
   }
+  if (searchParams.customer) {
+    query = query.ilike('customer_email', `%${searchParams.customer}%`)
+  }
 
   const { data: orders, count } = await query
 
@@ -66,32 +70,59 @@ export default async function AdminOrdersPage({
     if (merged.status) qs.set('status', merged.status)
     if (merged.from) qs.set('from', merged.from)
     if (merged.to) qs.set('to', merged.to)
+    if (merged.customer) qs.set('customer', merged.customer)
     if (merged.page && merged.page !== '1') qs.set('page', merged.page)
     const s = qs.toString()
     return s ? `/admin/orders?${s}` : '/admin/orders'
   }
 
-  const exportParams = new URLSearchParams()
-  if (searchParams.from) exportParams.set('from', searchParams.from)
-  if (searchParams.to) exportParams.set('to', searchParams.to)
-  const exportQs = exportParams.toString()
-  const exportUrl = `/api/admin/orders/export-usps${exportQs ? `?${exportQs}` : ''}`
+  const filterParams = new URLSearchParams()
+  if (searchParams.status) filterParams.set('status', searchParams.status)
+  if (searchParams.from) filterParams.set('from', searchParams.from)
+  if (searchParams.to) filterParams.set('to', searchParams.to)
+  if (searchParams.customer) filterParams.set('customer', searchParams.customer)
+  const filterQs = filterParams.toString()
+  const exportUrl = `/api/admin/orders/export-usps${filterQs ? `?${filterQs}` : ''}`
+  const packingSlipsUrl = `/admin/orders/packing-slips${filterQs ? `?${filterQs}` : ''}`
 
-  const hasFilters = !!(searchParams.status || searchParams.from || searchParams.to)
+  const hasFilters = !!(
+    searchParams.status ||
+    searchParams.from ||
+    searchParams.to ||
+    searchParams.customer
+  )
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-bold">Orders</h2>
-        <a href={exportUrl}>
-          <Button variant="outline">
-            <Download className="w-4 h-4 mr-2" />
-            Download USPS CSV
-          </Button>
-        </a>
+        <div className="flex gap-2">
+          <Link href={packingSlipsUrl} target="_blank">
+            <Button variant="outline">
+              <FileText className="w-4 h-4 mr-2" />
+              Print Packing Slips
+            </Button>
+          </Link>
+          <a href={exportUrl}>
+            <Button variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Download USPS CSV
+            </Button>
+          </a>
+        </div>
       </div>
 
       <form method="get" className="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap items-end gap-4">
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Customer Email</label>
+          <input
+            type="text"
+            name="customer"
+            placeholder="Search email..."
+            defaultValue={searchParams.customer ?? ''}
+            className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
+          />
+        </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
           <select
