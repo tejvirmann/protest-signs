@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -46,6 +47,7 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState(false)
   const [emailExists, setEmailExists] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState({ strength: 0, checks: { length: false, uppercase: false, lowercase: false, number: false, special: false } })
 
   const supabase = createClient()
@@ -209,15 +211,25 @@ export default function SignUpPage() {
               <label htmlFor="password" className="block text-sm font-medium mb-2">
                 Password
               </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                minLength={8}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  minLength={8}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               
               {password && (
                 <>
