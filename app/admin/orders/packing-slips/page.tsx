@@ -37,7 +37,7 @@ export default async function BulkPackingSlipsPage({
     if (searchParams.status) {
       query = query.eq('status', searchParams.status)
     } else if (!searchParams.from && !searchParams.to) {
-      query = query.eq('status', 'completed')
+      query = query.eq('status', 'in_progress')
     }
     if (searchParams.from) query = query.gte('created_at', searchParams.from)
     if (searchParams.to) query = query.lte('created_at', `${searchParams.to}T23:59:59.999Z`)

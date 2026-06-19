@@ -59,7 +59,7 @@ export async function GET(request: Request) {
     if (status) {
       query = query.eq('status', status)
     } else if (!from && !to) {
-      query = query.eq('status', 'completed')
+      query = query.eq('status', 'in_progress')
     }
     if (from) query = query.gte('created_at', from)
     if (to) query = query.lte('created_at', `${to}T23:59:59.999Z`)

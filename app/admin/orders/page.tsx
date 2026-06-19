@@ -8,7 +8,13 @@ export const dynamic = 'force-dynamic'
 
 const PAGE_SIZE = 10
 
-const STATUS_OPTIONS = ['completed', 'shipped', 'cancelled']
+const STATUS_OPTIONS = ['in_progress', 'completed', 'shipped', 'cancelled']
+const STATUS_LABELS: Record<string, string> = {
+  in_progress: 'In Progress',
+  completed: 'Completed',
+  shipped: 'Shipped',
+  cancelled: 'Cancelled',
+}
 
 interface SearchParams {
   status?: string
@@ -133,7 +139,7 @@ export default async function AdminOrdersPage({
             <option value="">All</option>
             {STATUS_OPTIONS.map((s) => (
               <option key={s} value={s}>
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+                {STATUS_LABELS[s]}
               </option>
             ))}
           </select>

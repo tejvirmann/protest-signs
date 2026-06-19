@@ -9,9 +9,17 @@ import { ArrowLeft, ExternalLink, FileText } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 const STATUS_STYLES: Record<string, string> = {
+  in_progress: 'bg-yellow-100 text-yellow-800',
   completed: 'bg-blue-100 text-blue-800',
   shipped: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  in_progress: 'In Progress',
+  completed: 'Completed',
+  shipped: 'Shipped',
+  cancelled: 'Cancelled',
 }
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
@@ -34,9 +42,14 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
   if (!order) notFound()
 
-  const stripeUrl = order.stripe_session_id
+  const isTestMode = order.stripe_session_id?.startsWith('cs_test_')
+  const stripeUrl = order.stripe_payment_intent_id
     ? `https://dashboard.stripe.com/${process.env.NEXT_PUBLIC_STRIPE_ACCOUNT_ID}/${
-        order.stripe_session_id.startsWith('cs_test_') ? 'test/' : ''
+        isTestMode ? 'test/' : ''
+      }payments/${order.stripe_payment_intent_id}`
+    : order.stripe_session_id
+    ? `https://dashboard.stripe.com/${process.env.NEXT_PUBLIC_STRIPE_ACCOUNT_ID}/${
+        isTestMode ? 'test/' : ''
       }checkout/sessions/${order.stripe_session_id}`
     : null
 
@@ -88,7 +101,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                 STATUS_STYLES[order.status] ?? 'bg-gray-100 text-gray-800'
               }`}
             >
-              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              {STATUS_LABELS[order.status] ?? order.status}
             </span>
           </div>
         </div>
