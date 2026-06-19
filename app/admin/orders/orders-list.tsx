@@ -3,19 +3,26 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { formatPrice } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Download, ExternalLink, FileText, AlertCircle } from 'lucide-react'
 
 const STATUS_STYLES: Record<string, string> = {
+  in_progress: 'bg-yellow-100 text-yellow-800',
   completed: 'bg-blue-100 text-blue-800',
   shipped: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
 }
 
-const STATUS_OPTIONS = ['completed', 'shipped', 'cancelled']
+const STATUS_LABELS: Record<string, string> = {
+  in_progress: 'In Progress',
+  completed: 'Completed',
+  shipped: 'Shipped',
+  cancelled: 'Cancelled',
+}
+
+const STATUS_OPTIONS = ['in_progress', 'completed', 'shipped', 'cancelled']
 
 interface Order {
   id: string
@@ -24,6 +31,7 @@ interface Order {
   total: number
   status: string
   stripe_session_id: string | null
+  stripe_payment_intent_id: string | null
   shipping_name: string | null
   shipping_address_line1: string | null
   shipping_address_line2: string | null
@@ -103,9 +111,14 @@ export function OrdersList({ orders }: { orders: Order[] }) {
       )}
 
       {orders.map((order) => {
-        const stripeUrl = order.stripe_session_id
-          ? `https://dashboard.stripe.com/${
-              order.stripe_session_id.startsWith('cs_test_') ? 'test/' : ''
+        const isTestMode = order.stripe_session_id?.startsWith('cs_test_')
+        const stripeUrl = order.stripe_payment_intent_id
+          ? `https://dashboard.stripe.com/${process.env.NEXT_PUBLIC_STRIPE_ACCOUNT_ID}/${
+              isTestMode ? 'test/' : ''
+            }payments/${order.stripe_payment_intent_id}`
+          : order.stripe_session_id
+          ? `https://dashboard.stripe.com/${process.env.NEXT_PUBLIC_STRIPE_ACCOUNT_ID}/${
+              isTestMode ? 'test/' : ''
             }checkout/sessions/${order.stripe_session_id}`
           : null
 
@@ -150,7 +163,7 @@ export function OrdersList({ orders }: { orders: Order[] }) {
                 >
                   {STATUS_OPTIONS.map((s) => (
                     <option key={s} value={s}>
-                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                      {STATUS_LABELS[s]}
                     </option>
                   ))}
                 </select>
@@ -163,46 +176,6 @@ export function OrdersList({ orders }: { orders: Order[] }) {
                   </Link>
                 </div>
               </div>
-            </div>
-
-            <div className="border-t pt-4 mb-4">
-              <h4 className="font-semibold mb-2">Ship to</h4>
-              {order.shipping_address_line1 ? (
-                <div className="text-sm text-gray-700">
-                  <p>{order.shipping_name}</p>
-                  <p>{order.shipping_address_line1}</p>
-                  {order.shipping_address_line2 && <p>{order.shipping_address_line2}</p>}
-                  <p>
-                    {order.shipping_city}, {order.shipping_state} {order.shipping_postal_code}
-                  </p>
-                  {order.shipping_phone && <p>Phone: {order.shipping_phone}</p>}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400 italic">
-                  No shipping address on file (order placed before shipping collection was enabled)
-                </p>
-              )}
-            </div>
-
-            <div className="border-t pt-4">
-              <h4 className="font-semibold mb-2">Items</h4>
-              <ul className="space-y-2">
-                {order.order_items.map((item, index) => (
-                  <li key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-3">
-                      {item.signs?.images?.[0] && (
-                        <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
-                          <Image src={item.signs.images[0]} alt={item.signs.title ?? ''} fill className="object-cover" />
-                        </div>
-                      )}
-                      <span>
-                        {item.signs?.title} × {item.quantity}
-                      </span>
-                    </div>
-                    <span className="font-medium">{formatPrice(item.price_at_purchase * item.quantity)}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         )

@@ -57,7 +57,8 @@ export async function POST(request: Request) {
       .insert({
         ...(userId ? { user_id: userId } : {}),
         stripe_session_id: session.id,
-        status: 'completed',
+        stripe_payment_intent_id: session.payment_intent ?? null,
+        status: 'in_progress',
         total: session.amount_total,
         customer_email: session.customer_details?.email ?? null,
         shipping_name: shipping?.name ?? null,
